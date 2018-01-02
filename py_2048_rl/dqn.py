@@ -88,7 +88,9 @@ if __name__ == "__main__":
             #action = agent.act(state)
             reward = game.do_action(action)
             next_state = game.state()
-            if game.is_action_available(action):
+            actions_available = game.available_actions()
+            print(actions_available)
+            if game.is_action_available(action): #wrong! implement function available_actions
                 done = False
             else:
                 done = True

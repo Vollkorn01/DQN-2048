@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
-import gym
+#import gym
 import numpy as np
 import random
 from collections import deque
@@ -41,8 +41,9 @@ class DQNAgent:
 
     def act(self, state):
         if np.random.rand() <= self.epsilon:
-            return random.randrange(self.action_size)
+            return random.randrange(game.available_actions())
         act_values = self.model.predict(state)
+        print(act_values[0])
         return np.argmax(act_values[0])  # returns action
 
     def replay(self, batch_size):
@@ -84,9 +85,8 @@ if __name__ == "__main__":
         #state = env.reset()
         while not game.game_over():
             action = random.choice(game.available_actions()) #replace with epsilon greedy strategy
-            # env.render()
+            #env.render()
             #action = agent.act(state)
-
             reward = game.do_action(action)
             next_state = game.state()
             actions_available = game.available_actions()
@@ -100,7 +100,7 @@ if __name__ == "__main__":
             next_state = np.reshape(next_state, [1, state_size])
             agent.remember(state, action, reward, next_state, done)
             state = next_state
-            print(state)
+            #print(state)
 
             if done:
                 print("no action available")

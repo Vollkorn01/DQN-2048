@@ -2,7 +2,7 @@
 import random
 import gym
 import numpy as np
-from random import randint
+import random
 from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense
@@ -83,17 +83,18 @@ if __name__ == "__main__":
         state = np.reshape(state, [1, state_size])
         #state = env.reset()
         while not game.game_over():
-            action = randint(0, 3) #replace with epsilon greedy strategy
+            action = random.choice(game.available_actions()) #replace with epsilon greedy strategy
             # env.render()
             #action = agent.act(state)
+
             reward = game.do_action(action)
             next_state = game.state()
             actions_available = game.available_actions()
             print(actions_available)
-            if game.is_action_available(action): #wrong! implement function available_actions
-                done = False
-            else:
+            if len(actions_available) == 0: #wrong! implement function available_actions here instead
                 done = True
+            else:
+                done = False
             #next_state, reward, done, _ = env.step(action)
             #reward = reward if not done else -10
             next_state = np.reshape(next_state, [1, state_size])
@@ -104,7 +105,7 @@ if __name__ == "__main__":
             if done:
                 print("no action available")
                 break
-            print("next action")
+            game.print_state()
         print("episodes: " + str(e))
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)

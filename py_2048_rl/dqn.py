@@ -11,7 +11,7 @@ from keras.optimizers import Adam
 #start in folder 2048-rl
 from py_2048_rl.game.game import Game
 
-EPISODES = 100
+EPISODES = 1000
 
 
 class DQNAgent:
@@ -41,11 +41,15 @@ class DQNAgent:
 
     def act(self, state):
         if np.random.rand() <= self.epsilon:
-            return random.randrange(game.available_actions())
+            return random.choice(game.available_actions())
         act_values = self.model.predict(state)
-        print(act_values[0])
-        return np.argmax(act_values[0])  # returns action
-
+        #print(act_values[0])
+        if np.argmax(act_values[0]) in game.available_actions():
+            return np.argmax(act_values[0])
+        #TODO: select 2nd highest value, if available action not available etc..
+        else:
+            return random.choice(game.available_actions())
+    
     def replay(self, batch_size):
         minibatch = random.sample(self.memory, batch_size)
         for state, action, reward, next_state, done in minibatch:
@@ -84,13 +88,13 @@ if __name__ == "__main__":
         state = np.reshape(state, [1, state_size])
         #state = env.reset()
         while not game.game_over():
-            action = random.choice(game.available_actions()) #replace with epsilon greedy strategy
+            #action = random.choice(game.available_actions()) #replace with epsilon greedy strategy
             #env.render()
-            #action = agent.act(state)
+            action = agent.act(state)
             reward = game.do_action(action)
             next_state = game.state()
             actions_available = game.available_actions()
-            print(actions_available)
+            #print(actions_available)
             if len(actions_available) == 0: #wrong! implement function available_actions here instead
                 done = True
             else:
@@ -104,9 +108,14 @@ if __name__ == "__main__":
 
             if done:
                 print("no action available")
+                states = game.state()
+                states = np.reshape(state, [1, state_size])
+                max_value = np.amax(states[0])
+                print(max_value)
                 break
-            game.print_state()
+            #game.print_state()
         print("episodes: " + str(e))
+        
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)
         # if e % 10 == 0:

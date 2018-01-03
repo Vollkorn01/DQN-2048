@@ -9,6 +9,8 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
 import matplotlib.pyplot as plt
+import matplotlib.animation as anim
+import json
 
 #start in folder 2048-rl
 from py_2048_rl.game.game import Game
@@ -20,7 +22,7 @@ class DQNAgent:
     def __init__(self, state_size, action_size):
         self.state_size = state_size # in our case 4*4*12
         self.action_size = action_size # ino our case 4 (up, down, right, left)
-        self.memory = deque(maxlen=2000)
+        self.memory = deque(maxlen=50000)
         self.gamma = 0.95    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
@@ -86,30 +88,6 @@ class DQNAgent:
     def save(self, name):
         self.model.save_weights(name)
 
-    # def plot_episode_maxvalue(self, e, s):
-      # ysample = random.sample(xrange(-50, 50), 100)
-      #
-      # xdata = []
-      # ydata = []
-      #
-      # plt.show()
-      #
-      # axes = plt.gca()
-      # axes.set_xlim(0, 100)
-      # axes.set_ylim(-50, +50)
-      # line, = axes.plot(xdata, ydata, 'r-')
-      #
-      # for i in range(100):
-      #   xdata.append(i)
-      # ydata.append(ysample[i])
-      # line.set_xdata(xdata)
-      # line.set_ydata(ydata)
-      # plt.draw()
-      # plt.pause(1e-17)
-      # time.sleep(0.1)
-      #
-      # # add this if you don't want the window to disappear at the end
-      # plt.show()
 
 
 if __name__ == "__main__":
@@ -124,26 +102,29 @@ if __name__ == "__main__":
     done = False
     batch_size = 32
     debug = False
+    plot = True
+    mylist = []
+
 
     for e in range(EPISODES):
         game.new_game()
         state = game.state()
         state = np.reshape(state, [1, state_size])
-        #state = env.reset()
+        # state = env.reset()
         while not game.game_over():
-            #action = random.choice(game.available_actions()) #replace with epsilon greedy strategy
-            #env.render()
+            # action = random.choice(game.available_actions()) #replace with epsilon greedy strategy
+            # env.render()
             action = agent.act(state)
             reward = game.do_action(action)
             next_state = game.state()
             actions_available = game.available_actions()
-            #print(actions_available)
+            # print(actions_available)
             if len(actions_available) == 0: #wrong! implement function available_actions here instead
                 done = True
             else:
                 done = False
-            #next_state, reward, done, _ = env.step(action)
-            #reward = reward if not done else -10
+            # next_state, reward, done, _ = env.step(action)
+            # reward = reward if not done else -10
             next_state = np.reshape(next_state, [1, state_size])
             agent.remember(state, action, reward, next_state, done)
             state = next_state
@@ -154,10 +135,14 @@ if __name__ == "__main__":
                 states = game.state()
                 states = np.reshape(state, [1, state_size])
                 max_value = np.amax(states[0])
+                mylist.append([e, max_value])
                 print("max_value: " + str(max_value))
                 break
             #game.print_state()
         print("episodes: " + str(e))
+        if e % 100 == 0:
+          with open("output.txt", "w") as outfile:
+            json.dump(mylist, outfile)
 
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)

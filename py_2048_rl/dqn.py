@@ -3,15 +3,17 @@ import random
 #import gym
 import numpy as np
 import random
+import time
 from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
+import matplotlib.pyplot as plt
 
 #start in folder 2048-rl
 from py_2048_rl.game.game import Game
 
-EPISODES = 1000
+EPISODES = 200000
 
 
 class DQNAgent:
@@ -37,28 +39,40 @@ class DQNAgent:
         return model
 
     def remember(self, state, action, reward, next_state, done):
+        """algorithm tends to forget the previous experiences as it overwrites them with new experiences.
+        Therefore we re-train the model with previous experiences."""
         self.memory.append((state, action, reward, next_state, done))
 
     def act(self, state):
         if np.random.rand() <= self.epsilon:
             return random.choice(game.available_actions())
+        #forward feeding
         act_values = self.model.predict(state)
-        #print(act_values[0])
-        if np.argmax(act_values[0]) in game.available_actions():
-            return np.argmax(act_values[0])
-        #TODO: select 2nd highest value, if available action not available etc..
-        else:
-            return random.choice(game.available_actions())
-    
+        #sets q-values of not available actions to -100 so they are not chosen
+        if len(game.available_actions())< 4:
+          temp = game.available_actions()
+          for i in range(0, 4):
+            if i not in temp:
+              act_values[0][i] = -100
+        #returns action with highest q-value
+        return np.argmax(act_values[0])
+
     def replay(self, batch_size):
+        """trains the neural net with experiences from memory (minibatches)"""
+        #samples mimibatch from memory
         minibatch = random.sample(self.memory, batch_size)
+        #for each memory
         for state, action, reward, next_state, done in minibatch:
+            #if its final state set target to the reward
             target = reward
             if not done:
-                target = (reward + self.gamma *
-                          np.amax(self.model.predict(next_state)[0]))
+                #set target according to formula
+                target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))
+            #gets all 4 predictions from current state
             target_f = self.model.predict(state)
+            #takes the one action which was selected in batch
             target_f[0][action] = target
+            #trains the model
             self.model.fit(state, target_f, epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
@@ -68,6 +82,31 @@ class DQNAgent:
 
     def save(self, name):
         self.model.save_weights(name)
+
+    # def plot_episode_maxvalue(self, e, s):
+      # ysample = random.sample(xrange(-50, 50), 100)
+      #
+      # xdata = []
+      # ydata = []
+      #
+      # plt.show()
+      #
+      # axes = plt.gca()
+      # axes.set_xlim(0, 100)
+      # axes.set_ylim(-50, +50)
+      # line, = axes.plot(xdata, ydata, 'r-')
+      #
+      # for i in range(100):
+      #   xdata.append(i)
+      # ydata.append(ysample[i])
+      # line.set_xdata(xdata)
+      # line.set_ydata(ydata)
+      # plt.draw()
+      # plt.pause(1e-17)
+      # time.sleep(0.1)
+      #
+      # # add this if you don't want the window to disappear at the end
+      # plt.show()
 
 
 if __name__ == "__main__":
@@ -107,15 +146,15 @@ if __name__ == "__main__":
             #print(state)
 
             if done:
-                print("no action available")
+                #print("no action available")
                 states = game.state()
                 states = np.reshape(state, [1, state_size])
                 max_value = np.amax(states[0])
-                print(max_value)
+                print("max_value: " + str(max_value))
                 break
             #game.print_state()
         print("episodes: " + str(e))
-        
+
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)
         # if e % 10 == 0:

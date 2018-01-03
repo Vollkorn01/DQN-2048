@@ -11,7 +11,7 @@ from keras.optimizers import Adam
 #start in folder 2048-rl
 from py_2048_rl.game.game import Game
 
-EPISODES = 1000
+EPISODES = 100000
 
 
 class DQNAgent:
@@ -22,7 +22,7 @@ class DQNAgent:
         self.gamma = 0.95    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
+        self.epsilon_decay = 0.998
         self.learning_rate = 0.001
         self.model = self._build_model()
 
@@ -30,6 +30,9 @@ class DQNAgent:
         # Neural Net for Deep-Q learning Model
         model = Sequential()
         model.add(Dense(24, input_dim=self.state_size, activation='relu'))
+        model.add(Dense(128, activation='relu'))
+        model.add(Dense(128, activation='relu'))
+        model.add(Dense(128, activation='relu'))
         model.add(Dense(24, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
@@ -81,6 +84,7 @@ if __name__ == "__main__":
     # agent.load("./save/cartpole-dqn.h5")
     done = False
     batch_size = 32
+    debug = False
 
     for e in range(EPISODES):
         game.new_game()
@@ -107,7 +111,7 @@ if __name__ == "__main__":
             #print(state)
 
             if done:
-                print("no action available")
+                if (debug): print("no action available")
                 states = game.state()
                 states = np.reshape(state, [1, state_size])
                 max_value = np.amax(states[0])

@@ -16,7 +16,7 @@ class DQNAgent:
         self.state_size = state_size # in our case 4*4*12
         self.action_size = action_size # ino our case 4 (up, down, right, left)
         self.memory = deque(maxlen=5000000)
-        self.gamma = 0.2    # discount rate
+        self.gamma = 0.0001    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.9999
@@ -93,6 +93,7 @@ if __name__ == "__main__":
     done = False
     batch_size = 32
     debug = False
+    max_value_reward = False
     save_maxvalues = True
     mylist = []
 
@@ -108,6 +109,13 @@ if __name__ == "__main__":
             action = agent.act(state)
             #action = random.choice(game.available_actions())
             reward = game.do_action(action)
+            if(max_value_reward):
+                reward = 0
+                temp = game.state()
+                temp_reshaped = np.reshape(temp, [1, state_size])
+                temp_max_value = np.amax(temp_reshaped[0])
+                if temp_max_value > 9:
+                    reward = 100
             next_state = game.state()
             actions_available = game.available_actions()
             # print(actions_available)

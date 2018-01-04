@@ -127,14 +127,14 @@ if __name__ == "__main__":
                 states = np.reshape(state, [1, state_size])
                 max_value = np.amax(states[0])
                 mylist.append([e, max_value])
-                print("max_value: " + str(max_value))
+                if(debug):print("max_value: " + str(max_value))
                 break
             #gamelogic.print_state()
         print("episodes: " + str(e))
 
         if save_maxvalues:
             if e % 100 == 0:
-                with open("./learning/data/output2.txt", "w") as outfile:
+                with open("./learning/data/output3.txt", "w") as outfile:
                     json.dump(mylist, outfile)
 
         if len(agent.memory) > batch_size:

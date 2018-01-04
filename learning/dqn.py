@@ -16,10 +16,10 @@ class DQNAgent:
         self.state_size = state_size # in our case 4*4*12
         self.action_size = action_size # ino our case 4 (up, down, right, left)
         self.memory = deque(maxlen=50000)
-        self.gamma = 0.95    # discount rate
+        self.gamma = 0.2    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.998
+        self.epsilon_decay = 0.99
         self.learning_rate = 0.001
         self.model = self._build_model()
 
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     done = False
     batch_size = 32
     debug = False
-    plot = True
+    save_maxvalues = True
     mylist = []
 
 
@@ -131,11 +131,13 @@ if __name__ == "__main__":
                 break
             #gamelogic.print_state()
         print("episodes: " + str(e))
-        if e % 100 == 0:
-          with open("./learning/data/output3.txt", "w") as outfile:
-            json.dump(mylist, outfile)
+
+        if save_maxvalues:
+            if e % 100 == 0:
+                with open("./learning/data/output2.txt", "w") as outfile:
+                    json.dump(mylist, outfile)
 
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)
-        # if e % 10 == 0:
-        #     agent.save("./save/cartpole-dqn.h5")
+        # if e % 10000 == 0:
+        #     agent.save("./learning/data/2048-dqn.h5")

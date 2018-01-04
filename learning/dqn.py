@@ -132,7 +132,7 @@ if __name__ == "__main__":
             #gamelogic.print_state()
         print("episodes: " + str(e))
         if e % 100 == 0:
-          with open("DQN-2048/learning/data/max_value_log2.txt", "w") as outfile:
+          with open("./learning/data/output3.txt", "w") as outfile:
             json.dump(mylist, outfile)
 
         if len(agent.memory) > batch_size:

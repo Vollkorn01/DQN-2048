@@ -1,19 +1,12 @@
 # -*- coding: utf-8 -*-
-import random
-#import gym
 import numpy as np
 import random
-import time
 from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
-import matplotlib.pyplot as plt
-import matplotlib.animation as anim
 import json
-
-#start in folder 2048-rl
-from py_2048_rl.game.game import Game
+from gamelogic.game import Game
 
 EPISODES = 100000
 
@@ -34,10 +27,8 @@ class DQNAgent:
         # Neural Net for Deep-Q learning Model
         model = Sequential()
         model.add(Dense(24, input_dim=self.state_size, activation='relu'))
-        model.add(Dense(128, activation='relu'))
-        model.add(Dense(128, activation='relu'))
-        model.add(Dense(128, activation='relu'))
-        model.add(Dense(24, activation='relu'))
+        model.add(Dense(256, activation='relu'))
+        model.add(Dense(256, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
@@ -112,7 +103,7 @@ if __name__ == "__main__":
         state = np.reshape(state, [1, state_size])
         # state = env.reset()
         while not game.game_over():
-            # action = random.choice(game.available_actions()) #replace with epsilon greedy strategy
+            # action = random.choice(gamelogic.available_actions()) #replace with epsilon greedy strategy
             # env.render()
             action = agent.act(state)
             reward = game.do_action(action)
@@ -138,10 +129,10 @@ if __name__ == "__main__":
                 mylist.append([e, max_value])
                 print("max_value: " + str(max_value))
                 break
-            #game.print_state()
+            #gamelogic.print_state()
         print("episodes: " + str(e))
         if e % 100 == 0:
-          with open("output.txt", "w") as outfile:
+          with open("DQN-2048/learning/data/max_value_log2.txt", "w") as outfile:
             json.dump(mylist, outfile)
 
         if len(agent.memory) > batch_size:

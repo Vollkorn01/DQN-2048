@@ -24,7 +24,7 @@ class Game(object):
     Args:
       state: Shape (4, 4) numpy array to initialize the state with. If None,
           the state will be initialized with with two random tiles (as done
-          in the original game).
+          in the original gamelogic).
       initial_score: Score to initialize the Game with.
     """
 
@@ -49,7 +49,7 @@ class Game(object):
     return Game(np.copy(self._state), self._score)
 
   def game_over(self):
-    """Whether the game is over."""
+    """Whether the gamelogic is over."""
 
     for action in range(4):
       if self.is_action_available(action):

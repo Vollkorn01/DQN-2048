@@ -1,3 +1,3 @@
 #!/bin/bash
 
-export PYTHONPATH=$(pwd)/py_2048_rl:$PYTHONPATH
+export PYTHONPATH=$(pwd)/DQN-2048:$PYTHONPATH

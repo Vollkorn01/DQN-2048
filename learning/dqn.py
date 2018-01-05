@@ -16,10 +16,10 @@ class DQNAgent:
         self.state_size = state_size # in our case 4*4*12
         self.action_size = action_size # ino our case 4 (up, down, right, left)
         self.memory = deque(maxlen=5000000)
-        self.gamma = 0.0001    # discount rate
+        self.gamma = 0.00001    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.9999
+        self.epsilon_decay = 0.9995
         self.learning_rate = 0.001
         self.model = self._build_model()
 
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     done = False
     batch_size = 32
     debug = False
-    max_value_reward = False
+    max_value_reward = True
     save_maxvalues = True
     mylist = []
 
@@ -143,7 +143,7 @@ if __name__ == "__main__":
 
         if save_maxvalues:
             if e % 100 == 0:
-                with open("./learning/data/output3.txt", "w") as outfile:
+                with open("./learning/data/output6.txt", "w") as outfile:
                     json.dump(mylist, outfile)
 
         if len(agent.memory) > batch_size:

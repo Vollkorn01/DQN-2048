@@ -29,7 +29,7 @@ class DQNAgent:
         self.is_max_value_reward = parameters.is_max_value_reward
         self.max_value_reward_threshold = parameters.max_value_reward_threshold
         self.max_value_reward_amount = parameters.max_value_reward_amount
-        self.output_name = "test"
+        self.output_name = parameters.output_name
 
 
     def _build_model(self):
@@ -144,20 +144,20 @@ if __name__ == "__main__":
             #gamelogic.print_state()
         print("episodes: " + str(e))
 
-        output_name = "nr2linear_"
         #save copy of configuration and the episode_maxvalue_data
         if save_maxvalues:
             if e == 100:
                 src = "./learning/dqn.py"
-                dst = "./learning/data/"+output_name+"config.py"
+                dst = "./learning/data/"+agent.output_name+"config.py"
                 copyfile(src, dst)
+                #mylist.insert(0, ["gamma: "+str(parameters.gamma)+" epsilon decay: "+str(parameters.epsilon_decay)+" learning rate: "+str(parameters.learning_rate)+" batch site: "+str(parameters.batch_size)+" is max value reward: "+str(parameters.is_max_value_reward)+" max value reward amount: "+str(parameters.max_value_reward_amount)+" max value reward threshold: "+str(parameters.max_value_reward_threshold), "none"])
             if e % 100 == 0:
-                with open("./learning/data/"+output_name+"output.txt", "w") as outfile:
+                with open("./learning/data/"+agent.output_name+"output.txt", "w") as outfile:
                     json.dump(mylist, outfile)
 
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)
         if e % 10000 == 0:
             timenow = time.strftime("%Y-%m-%d_%H-%M-%S")
-            path = "./learning/data/agent"+output_name+timenow+"_Epi"+str(e)
+            path = "./learning/data/agent"+agent.output_name+timenow+"_Epi"+str(e)
             agent.save(path)

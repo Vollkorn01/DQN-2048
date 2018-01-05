@@ -9,21 +9,28 @@ import json
 from gamelogic.game import Game
 import time
 from shutil import copyfile
+from learning import parameters
 
 EPISODES = 100000
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size):
-        self.state_size = state_size # in our case 4*4*12
-        self.action_size = action_size # ino our case 4 (up, down, right, left)
+    def __init__(self):
+        self.state_size = 16
+        self.action_size = 4 # (up, down, right, left)
         self.memory = deque(maxlen=5000000)
-        self.gamma = 0.00001    # discount rate
+        self.gamma = parameters.gamma    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.998
-        self.learning_rate = 0.001
+        self.epsilon_decay = parameters.epsilon_decay
+        self.learning_rate = parameters.learning_rate
         self.model = self._build_model()
+        self.batch_size = parameters.batch_size
+        self.is_max_value_reward = parameters.is_max_value_reward
+        self.max_value_reward_threshold = parameters.max_value_reward_threshold
+        self.max_value_reward_amount = parameters.max_value_reward_amount
+        self.output_name = "test"
+
 
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
@@ -31,7 +38,7 @@ class DQNAgent:
         model.add(Dense(24, input_dim=self.state_size, activation='relu'))
         model.add(Dense(256, activation='relu'))
         model.add(Dense(256, activation='relu'))
-        model.add(Dense(self.action_size, activation='linear'))
+        model.add(Dense(self.action_size, activation='relu'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
         return model
@@ -85,17 +92,11 @@ class DQNAgent:
 
 if __name__ == "__main__":
     game = Game()
-    #env = gym.make('CartPole-v1')
-    state_size = 16
-    #state_size = env.observation_space.shape[0] # in our case 4*4
-    action_size = 4
-    #action_size = env.action_space.n #in our case 4
-    agent = DQNAgent(state_size, action_size)
-    # agent.load("./save/cartpole-dqn.h5")
+    agent = DQNAgent()
+    # agent.load("./save/file")
     done = False
-    batch_size = 32
+    batch_size = agent.batch_size
     debug = False
-    max_value_reward = True
     save_maxvalues = True
     mylist = []
 
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     for e in range(EPISODES):
         game.new_game()
         state = game.state()
-        state = np.reshape(state, [1, state_size])
+        state = np.reshape(state, [1, agent.state_size])
         # state = env.reset()
         while not game.game_over():
             # action = random.choice(gamelogic.available_actions()) #replace with epsilon greedy strategy
@@ -111,13 +112,13 @@ if __name__ == "__main__":
             action = agent.act(state)
             #action = random.choice(game.available_actions())
             reward = game.do_action(action)
-            if(max_value_reward):
+            if(agent.is_max_value_reward):
                 reward = 0
                 temp = game.state()
-                temp_reshaped = np.reshape(temp, [1, state_size])
+                temp_reshaped = np.reshape(temp, [1, agent.state_size])
                 temp_max_value = np.amax(temp_reshaped[0])
-                if temp_max_value > 9:
-                    reward = 100
+                if temp_max_value > agent.max_value_reward_threshold:
+                    reward = agent.max_value_reward_amount
             next_state = game.state()
             actions_available = game.available_actions()
             # print(actions_available)
@@ -127,7 +128,7 @@ if __name__ == "__main__":
                 done = False
             # next_state, reward, done, _ = env.step(action)
             # reward = reward if not done else -10
-            next_state = np.reshape(next_state, [1, state_size])
+            next_state = np.reshape(next_state, [1, agent.state_size])
             agent.remember(state, action, reward, next_state, done)
             state = next_state
             #print(state)
@@ -135,7 +136,7 @@ if __name__ == "__main__":
             if done:
                 if (debug): print("no action available")
                 states = game.state()
-                states = np.reshape(state, [1, state_size])
+                states = np.reshape(state, [1, agent.state_size])
                 max_value = np.amax(states[0])
                 mylist.append([e, np.asscalar(max_value)])
                 if(debug):print("max_value: " + str(max_value))

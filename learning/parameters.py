@@ -6,4 +6,4 @@ batch_size = 32
 is_max_value_reward = True
 max_value_reward_threshold = 9
 max_value_reward_amount = 100
-output_name = "test"
+output_name = "test99"

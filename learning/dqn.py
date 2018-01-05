@@ -150,7 +150,7 @@ if __name__ == "__main__":
                 src = "./learning/dqn.py"
                 dst = "./learning/data/"+agent.output_name+"config.py"
                 copyfile(src, dst)
-                #mylist.insert(0, ["gamma: "+str(parameters.gamma)+" epsilon decay: "+str(parameters.epsilon_decay)+" learning rate: "+str(parameters.learning_rate)+" batch site: "+str(parameters.batch_size)+" is max value reward: "+str(parameters.is_max_value_reward)+" max value reward amount: "+str(parameters.max_value_reward_amount)+" max value reward threshold: "+str(parameters.max_value_reward_threshold), "none"])
+                mylist.insert(0, "gamma: "+str(parameters.gamma)+" | epsilon decay: "+str(parameters.epsilon_decay)+" | learning rate: "+str(parameters.learning_rate)+"\n batch size: "+str(parameters.batch_size)+" | reward = maxVal: "+str(parameters.is_max_value_reward)+" | reward amount: "+str(parameters.max_value_reward_amount)+" | reward threshold: "+str(parameters.max_value_reward_threshold))
             if e % 100 == 0:
                 with open("./learning/data/"+agent.output_name+"output.txt", "w") as outfile:
                     json.dump(mylist, outfile)

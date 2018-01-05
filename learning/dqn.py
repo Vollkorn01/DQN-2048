@@ -8,6 +8,7 @@ from keras.optimizers import Adam
 import json
 from gamelogic.game import Game
 import time
+from shutil import copyfile
 
 EPISODES = 100000
 
@@ -20,7 +21,7 @@ class DQNAgent:
         self.gamma = 0.00001    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.9995
+        self.epsilon_decay = 0.998
         self.learning_rate = 0.001
         self.model = self._build_model()
 
@@ -142,14 +143,20 @@ if __name__ == "__main__":
             #gamelogic.print_state()
         print("episodes: " + str(e))
 
+        output_name = "nr2linear_"
+        #save copy of configuration and the episode_maxvalue_data
         if save_maxvalues:
+            if e == 100:
+                src = "./learning/dqn.py"
+                dst = "./learning/data/"+output_name+"config.py"
+                copyfile(src, dst)
             if e % 100 == 0:
-                with open("./learning/data/output6.txt", "w") as outfile:
+                with open("./learning/data/"+output_name+"output.txt", "w") as outfile:
                     json.dump(mylist, outfile)
 
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)
         if e % 10000 == 0:
             timenow = time.strftime("%Y-%m-%d_%H-%M-%S")
-            path = "./learning/data/agent"+timenow+"_Epi"+str(e)+"_epsilDec"+str(agent.epsilon_decay)
+            path = "./learning/data/agent"+output_name+timenow+"_Epi"+str(e)
             agent.save(path)

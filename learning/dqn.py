@@ -7,6 +7,7 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 import json
 from gamelogic.game import Game
+import time
 
 EPISODES = 100000
 
@@ -135,7 +136,7 @@ if __name__ == "__main__":
                 states = game.state()
                 states = np.reshape(state, [1, state_size])
                 max_value = np.amax(states[0])
-                mylist.append([e, max_value])
+                mylist.append([e, np.asscalar(max_value)])
                 if(debug):print("max_value: " + str(max_value))
                 break
             #gamelogic.print_state()
@@ -148,5 +149,7 @@ if __name__ == "__main__":
 
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)
-        # if e % 10000 == 0:
-        #     agent.save("./learning/data/2048-dqn.h5")
+        if e % 10000 == 0:
+            timenow = time.strftime("%Y-%m-%d_%H-%M-%S")
+            path = "./learning/data/agent"+timenow+"_Epi"+str(e)+"_epsilDec"+str(agent.epsilon_decay)
+            agent.save(path)

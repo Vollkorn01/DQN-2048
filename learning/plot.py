@@ -18,9 +18,10 @@ import numpy as np
 #     plt.plot(a[:,0], a[:,1], 'r.-')
 #     plt.show()
 
+outputname = "test01"
 
 def plotmeans(mean_of_every_x_episodes):
-    with open('./learning/data/test99output.txt', "r") as infile:
+    with open('./learning/data/'+outputname+'output.txt', "r") as infile:
       mylist = json.load(infile)
 
       #extract first item from list which is the configuration info

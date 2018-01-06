@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import os
 import random
 from collections import deque
 from keras.models import Sequential
@@ -10,6 +11,7 @@ from gamelogic.game import Game
 
 EPISODES = 100000
 
+path = os.getcwd()
 
 class DQNAgent:
     def __init__(self, state_size, action_size):
@@ -125,7 +127,7 @@ if __name__ == "__main__":
                 if (debug): print("no action available")
                 states = game.state()
                 states = np.reshape(state, [1, state_size])
-                max_value = np.amax(states[0])
+                max_value = np.asscalar(np.amax(states[0]))
                 mylist.append([e, max_value])
                 if(debug):print("max_value: " + str(max_value))
                 break
@@ -134,7 +136,7 @@ if __name__ == "__main__":
 
         if save_maxvalues:
             if e % 100 == 0:
-                with open("./learning/data/output3.txt", "w") as outfile:
+                with open(path + "/data/output5.txt", "w") as outfile:
                     json.dump(mylist, outfile)
 
         if len(agent.memory) > batch_size:

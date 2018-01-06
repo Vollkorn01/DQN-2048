@@ -17,11 +17,11 @@ class DQNAgent:
     def __init__(self, state_size, action_size):
         self.state_size = state_size # in our case 4*4*12
         self.action_size = action_size # ino our case 4 (up, down, right, left)
-        self.memory = deque(maxlen=50000)
+        self.memory = deque(maxlen=5000000)
         self.gamma = 0.2    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.99
+        self.epsilon_decay = 0.9999
         self.learning_rate = 0.001
         self.model = self._build_model()
 
@@ -108,6 +108,7 @@ if __name__ == "__main__":
             # action = random.choice(gamelogic.available_actions()) #replace with epsilon greedy strategy
             # env.render()
             action = agent.act(state)
+            #action = random.choice(game.available_actions())
             reward = game.do_action(action)
             next_state = game.state()
             actions_available = game.available_actions()

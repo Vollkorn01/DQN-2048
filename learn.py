@@ -9,10 +9,12 @@ import json
 from gamelogic.game import Game
 import time
 from shutil import copyfile
-from learning import parameters
+import parameters
+import os
 
 EPISODES = 100000
 
+path  = os.getcwd()
 
 class DQNAgent:
     def __init__(self):
@@ -105,12 +107,8 @@ if __name__ == "__main__":
         game.new_game()
         state = game.state()
         state = np.reshape(state, [1, agent.state_size])
-        # state = env.reset()
         while not game.game_over():
-            # action = random.choice(gamelogic.available_actions()) #replace with epsilon greedy strategy
-            # env.render()
             action = agent.act(state)
-            #action = random.choice(game.available_actions())
             reward = (game.do_action(action))**2
             if(agent.is_max_value_reward):
                 reward = 0
@@ -121,43 +119,38 @@ if __name__ == "__main__":
                     reward = agent.max_value_reward_amount
             next_state = game.state()
             actions_available = game.available_actions()
-            # print(actions_available)
-            if len(actions_available) == 0: #wrong! implement function available_actions here instead
+            if len(actions_available) == 0: 
                 done = True
             else:
                 done = False
-            # next_state, reward, done, _ = env.step(action)
-            # reward = reward if not done else -10
             next_state = np.reshape(next_state, [1, agent.state_size])
             agent.remember(state, action, reward, next_state, done)
             state = next_state
-            #print(state)
 
             if done:
                 if (debug): print("no action available")
                 states = game.state()
                 states = np.reshape(state, [1, agent.state_size])
                 max_value = np.amax(states[0])
-                output_list.append([e, np.asscalar(max_value), game.score(), agent.epsilon])
+                output_list.append([e, np.asscalar(max_value), np.asscalar(game.score()), agent.epsilon])
                 if(debug):print("max_value: " + str(max_value))
                 break
-            #gamelogic.print_state()
         print("episodes: " + str(e))
 
         #save copy of configuration and the episode_maxvalue_data
         if save_maxvalues:
             if e == 100:
-                src = "./learning/dqn.py"
-                dst = "./learning/data/"+agent.output_name+"config.py"
+                src = path + "/learn.py"
+                dst = path + "/data/"+agent.output_name+"config.py"
                 copyfile(src, dst)
                 output_list.insert(0, "gamma: "+str(parameters.gamma)+" | epsilon decay: "+str(parameters.epsilon_decay)+" | learning rate: "+str(parameters.learning_rate)+"\n batch size: "+str(parameters.batch_size)+" | reward = maxVal: "+str(parameters.is_max_value_reward)+" | reward amount: "+str(parameters.max_value_reward_amount)+" | reward threshold: "+str(parameters.max_value_reward_threshold))
             if e % 100 == 0:
-                with open("./learning/data/"+agent.output_name+"output.txt", "w") as outfile:
+                with open(path + "/data/"+agent.output_name+"output.txt", "w") as outfile:
                     json.dump(output_list, outfile)
 
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)
         if e % 10000 == 0:
             timenow = time.strftime("%Y-%m-%d_%H-%M-%S")
-            path = "./learning/data/agent"+agent.output_name+timenow+"_Epi"+str(e)
-            agent.save(path)
+            savepath = path + "/data/agent"+agent.output_name+timenow+"_Epi"+str(e)
+            agent.save(savepath)

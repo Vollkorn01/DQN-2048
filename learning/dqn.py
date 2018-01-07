@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import os
 import random
 from collections import deque
 from keras.models import Sequential
@@ -8,22 +7,30 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 import json
 from gamelogic.game import Game
+import time
+from shutil import copyfile
+from learning import parameters
 
 EPISODES = 100000
 
-path = os.getcwd()
 
 class DQNAgent:
-    def __init__(self, state_size, action_size):
-        self.state_size = state_size # in our case 4*4*12
-        self.action_size = action_size # ino our case 4 (up, down, right, left)
+    def __init__(self):
+        self.state_size = 16
+        self.action_size = 4 # (up, down, right, left)
         self.memory = deque(maxlen=5000000)
-        self.gamma = 0.2    # discount rate
+        self.gamma = parameters.gamma    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.9999
-        self.learning_rate = 0.001
+        self.epsilon_decay = parameters.epsilon_decay
+        self.learning_rate = parameters.learning_rate
         self.model = self._build_model()
+        self.batch_size = parameters.batch_size
+        self.is_max_value_reward = parameters.is_max_value_reward
+        self.max_value_reward_threshold = parameters.max_value_reward_threshold
+        self.max_value_reward_amount = parameters.max_value_reward_amount
+        self.output_name = parameters.output_name
+
 
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
@@ -31,7 +38,7 @@ class DQNAgent:
         model.add(Dense(24, input_dim=self.state_size, activation='relu'))
         model.add(Dense(256, activation='relu'))
         model.add(Dense(256, activation='relu'))
-        model.add(Dense(self.action_size, activation='linear'))
+        model.add(Dense(self.action_size, activation='relu'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
         return model
@@ -85,31 +92,33 @@ class DQNAgent:
 
 if __name__ == "__main__":
     game = Game()
-    #env = gym.make('CartPole-v1')
-    state_size = 16
-    #state_size = env.observation_space.shape[0] # in our case 4*4
-    action_size = 4
-    #action_size = env.action_space.n #in our case 4
-    agent = DQNAgent(state_size, action_size)
-    # agent.load("./save/cartpole-dqn.h5")
+    agent = DQNAgent()
+    # agent.load("./save/file")
     done = False
-    batch_size = 32
+    batch_size = agent.batch_size
     debug = False
     save_maxvalues = True
-    mylist = []
+    output_list = []
 
 
     for e in range(EPISODES):
         game.new_game()
         state = game.state()
-        state = np.reshape(state, [1, state_size])
+        state = np.reshape(state, [1, agent.state_size])
         # state = env.reset()
         while not game.game_over():
             # action = random.choice(gamelogic.available_actions()) #replace with epsilon greedy strategy
             # env.render()
             action = agent.act(state)
             #action = random.choice(game.available_actions())
-            reward = game.do_action(action)
+            reward = (game.do_action(action))**2
+            if(agent.is_max_value_reward):
+                reward = 0
+                temp = game.state()
+                temp_reshaped = np.reshape(temp, [1, agent.state_size])
+                temp_max_value = np.amax(temp_reshaped[0])
+                if temp_max_value > agent.max_value_reward_threshold:
+                    reward = agent.max_value_reward_amount
             next_state = game.state()
             actions_available = game.available_actions()
             # print(actions_available)
@@ -119,7 +128,7 @@ if __name__ == "__main__":
                 done = False
             # next_state, reward, done, _ = env.step(action)
             # reward = reward if not done else -10
-            next_state = np.reshape(next_state, [1, state_size])
+            next_state = np.reshape(next_state, [1, agent.state_size])
             agent.remember(state, action, reward, next_state, done)
             state = next_state
             #print(state)
@@ -127,20 +136,28 @@ if __name__ == "__main__":
             if done:
                 if (debug): print("no action available")
                 states = game.state()
-                states = np.reshape(state, [1, state_size])
-                max_value = np.asscalar(np.amax(states[0]))
-                mylist.append([e, max_value])
+                states = np.reshape(state, [1, agent.state_size])
+                max_value = np.amax(states[0])
+                output_list.append([e, np.asscalar(max_value), game.score(), agent.epsilon])
                 if(debug):print("max_value: " + str(max_value))
                 break
             #gamelogic.print_state()
         print("episodes: " + str(e))
 
+        #save copy of configuration and the episode_maxvalue_data
         if save_maxvalues:
+            if e == 100:
+                src = "./learning/dqn.py"
+                dst = "./learning/data/"+agent.output_name+"config.py"
+                copyfile(src, dst)
+                output_list.insert(0, "gamma: "+str(parameters.gamma)+" | epsilon decay: "+str(parameters.epsilon_decay)+" | learning rate: "+str(parameters.learning_rate)+"\n batch size: "+str(parameters.batch_size)+" | reward = maxVal: "+str(parameters.is_max_value_reward)+" | reward amount: "+str(parameters.max_value_reward_amount)+" | reward threshold: "+str(parameters.max_value_reward_threshold))
             if e % 100 == 0:
-                with open(path + "/data/output5.txt", "w") as outfile:
-                    json.dump(mylist, outfile)
+                with open("./learning/data/"+agent.output_name+"output.txt", "w") as outfile:
+                    json.dump(output_list, outfile)
 
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)
-        # if e % 10000 == 0:
-        #     agent.save("./learning/data/2048-dqn.h5")
+        if e % 10000 == 0:
+            timenow = time.strftime("%Y-%m-%d_%H-%M-%S")
+            path = "./learning/data/agent"+agent.output_name+timenow+"_Epi"+str(e)
+            agent.save(path)

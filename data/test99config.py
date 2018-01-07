@@ -107,12 +107,8 @@ if __name__ == "__main__":
         game.new_game()
         state = game.state()
         state = np.reshape(state, [1, agent.state_size])
-        # state = env.reset()
         while not game.game_over():
-            # action = random.choice(gamelogic.available_actions()) #replace with epsilon greedy strategy
-            # env.render()
             action = agent.act(state)
-            #action = random.choice(game.available_actions())
             reward = (game.do_action(action))**2
             if(agent.is_max_value_reward):
                 reward = 0
@@ -123,17 +119,13 @@ if __name__ == "__main__":
                     reward = agent.max_value_reward_amount
             next_state = game.state()
             actions_available = game.available_actions()
-            # print(actions_available)
-            if len(actions_available) == 0: #wrong! implement function available_actions here instead
+            if len(actions_available) == 0: 
                 done = True
             else:
                 done = False
-            # next_state, reward, done, _ = env.step(action)
-            # reward = reward if not done else -10
             next_state = np.reshape(next_state, [1, agent.state_size])
             agent.remember(state, action, reward, next_state, done)
             state = next_state
-            #print(state)
 
             if done:
                 if (debug): print("no action available")
@@ -143,7 +135,6 @@ if __name__ == "__main__":
                 output_list.append([e, np.asscalar(max_value), np.asscalar(game.score()), agent.epsilon])
                 if(debug):print("max_value: " + str(max_value))
                 break
-            #gamelogic.print_state()
         print("episodes: " + str(e))
 
         #save copy of configuration and the episode_maxvalue_data

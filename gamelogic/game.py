@@ -119,7 +119,7 @@ class Game(object):
           state[row, col] = 0
           merged[merge_candidate] = True
           state[row, merge_candidate] += 1
-          reward += (2 ** state[row, merge_candidate]) ** 2
+          reward += (2 ** state[row, merge_candidate])
 
         else:
           # Move tile to the left

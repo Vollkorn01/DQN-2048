@@ -98,7 +98,7 @@ if __name__ == "__main__":
     batch_size = agent.batch_size
     debug = False
     save_maxvalues = True
-    mylist = []
+    output_list = []
 
 
     for e in range(EPISODES):
@@ -111,7 +111,7 @@ if __name__ == "__main__":
             # env.render()
             action = agent.act(state)
             #action = random.choice(game.available_actions())
-            reward = game.do_action(action)
+            reward = (game.do_action(action))**2
             if(agent.is_max_value_reward):
                 reward = 0
                 temp = game.state()
@@ -138,7 +138,7 @@ if __name__ == "__main__":
                 states = game.state()
                 states = np.reshape(state, [1, agent.state_size])
                 max_value = np.amax(states[0])
-                mylist.append([e, np.asscalar(max_value)])
+                output_list.append([e, np.asscalar(max_value), game.score(), agent.epsilon])
                 if(debug):print("max_value: " + str(max_value))
                 break
             #gamelogic.print_state()
@@ -150,10 +150,10 @@ if __name__ == "__main__":
                 src = "./learning/dqn.py"
                 dst = "./learning/data/"+agent.output_name+"config.py"
                 copyfile(src, dst)
-                mylist.insert(0, "gamma: "+str(parameters.gamma)+" | epsilon decay: "+str(parameters.epsilon_decay)+" | learning rate: "+str(parameters.learning_rate)+"\n batch size: "+str(parameters.batch_size)+" | reward = maxVal: "+str(parameters.is_max_value_reward)+" | reward amount: "+str(parameters.max_value_reward_amount)+" | reward threshold: "+str(parameters.max_value_reward_threshold))
+                output_list.insert(0, "gamma: "+str(parameters.gamma)+" | epsilon decay: "+str(parameters.epsilon_decay)+" | learning rate: "+str(parameters.learning_rate)+"\n batch size: "+str(parameters.batch_size)+" | reward = maxVal: "+str(parameters.is_max_value_reward)+" | reward amount: "+str(parameters.max_value_reward_amount)+" | reward threshold: "+str(parameters.max_value_reward_threshold))
             if e % 100 == 0:
                 with open("./learning/data/"+agent.output_name+"output.txt", "w") as outfile:
-                    json.dump(mylist, outfile)
+                    json.dump(output_list, outfile)
 
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)

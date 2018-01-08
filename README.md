@@ -1,1 +1,1 @@
-Working directory of all .py files is set to the root folder DQN-2048
+Please open the Jupyter Notebook at deep-q-learning-2048.ipynb for further infos.

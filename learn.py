@@ -11,7 +11,6 @@ import time
 from shutil import copyfile
 import parameters
 import os
-import plot
 
 EPISODES = 100000
 

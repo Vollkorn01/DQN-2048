@@ -138,7 +138,11 @@ def plot_data(plottitle, max_x, para_episodes_list, para_value_list, para_score_
     plt.title(plottitle, fontsize=10)
     additionalname = "_avg_"
     if (plot_max_instead_of_avg): additionalname = "_max_"
-    fig.savefig(path + "/graphs/" + str(inputname) + additionalname + "graph.pdf", bbox_inches='tight')
+
+    figurepath = path + "/graphs/"
+    if not os.path.exists(figurepath):
+      os.makedirs(figurepath)
+    fig.savefig(figurepath + str(inputname)+additionalname+"graph.pdf", bbox_inches='tight')
     plt.show()
 
 plot()

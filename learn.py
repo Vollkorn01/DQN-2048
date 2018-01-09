@@ -32,7 +32,9 @@ class DQNAgent:
         self.max_value_reward_threshold = parameters.max_value_reward_threshold
         self.max_value_reward_amount = parameters.max_value_reward_amount
         self.output_name = parameters.output_name
-
+        filename = path + "/data/"
+        if not os.path.exists(filename):
+            os.makedirs(filename)
 
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
@@ -121,7 +123,7 @@ if __name__ == "__main__":
                     reward = agent.max_value_reward_amount
             next_state = game.state()
             actions_available = game.available_actions()
-            if len(actions_available) == 0: 
+            if len(actions_available) == 0:
                 done = True
             else:
                 done = False
@@ -142,9 +144,6 @@ if __name__ == "__main__":
         #save copy of configuration and the episode_maxvalue_data
         if save_maxvalues:
             if e == 100:
-                src = path + "/learn.py"
-                dst = path + "/data/"+agent.output_name+"config.py"
-                copyfile(src, dst)
                 output_list.insert(0, "gamma: "+str(parameters.gamma)+" | epsilon decay: "+str(parameters.epsilon_decay)+" | learning rate: "+str(parameters.learning_rate)+"\n batch size: "+str(parameters.batch_size)+" | reward = maxVal: "+str(parameters.is_max_value_reward)+" | reward amount: "+str(parameters.max_value_reward_amount)+" | reward threshold: "+str(parameters.max_value_reward_threshold))
             if e % 100 == 0:
                 with open(path + "/data/"+agent.output_name+"output.txt", "w") as outfile:

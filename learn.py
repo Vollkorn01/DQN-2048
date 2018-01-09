@@ -92,7 +92,7 @@ class DQNAgent:
         self.model.load_weights(name)
 
     def save(self, name):
-        self.model.save_weights(name)
+        self.model.save(name)
 
 
 
@@ -153,5 +153,5 @@ if __name__ == "__main__":
             agent.replay(batch_size)
         if e % 10000 == 0:
             timenow = time.strftime("%Y-%m-%d_%H-%M-%S")
-            savepath = path + "/data/agent"+agent.output_name+timenow+"_Epi"+str(e)
+            savepath = path + "/data/checkpoint"
             agent.save(savepath)

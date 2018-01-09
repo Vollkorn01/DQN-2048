@@ -63,6 +63,8 @@ class DQNAgent:
               act_values[0][i] = -100
         #returns action with highest q-value
         return np.argmax(act_values[0])
+        #replace return with this for a random agent:
+        #return random.choice(game.available_actions())
 
     def replay(self, batch_size):
         """trains the neural net with experiences from memory (minibatches)"""

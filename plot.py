@@ -136,7 +136,9 @@ def plot_data(plottitle, max_x, para_episodes_list, para_value_list, para_score_
     lines = [p1, p2, p3]
     host.legend(lines, [l.get_label() for l in lines])
     plt.title(plottitle, fontsize=10)
-    fig.savefig(path + "/graphs/" + str(inputname) + "graph.pdf", bbox_inches='tight')
+    additionalname = "_avg_"
+    if (plot_max_instead_of_avg): additionalname = "_max_"
+    fig.savefig(path + "/graphs/" + str(inputname) + additionalname + "graph.pdf", bbox_inches='tight')
     plt.show()
 
 plot()

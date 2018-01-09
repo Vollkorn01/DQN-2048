@@ -114,9 +114,9 @@ def plot_data(plottitle, max_x, para_episodes_list, para_value_list, para_score_
     #Episodes
     host.set_xlim(stepsize, max_x)
     #Score
-    host.set_ylim(0, 3000)
+    host.set_ylim(0, 9000)
     #MaxValue
-    par1.set_ylim(0, 10)
+    par1.set_ylim(6, 11)
     #Epsilon
     par2.set_ylim(0, 1)
 
@@ -136,6 +136,7 @@ def plot_data(plottitle, max_x, para_episodes_list, para_value_list, para_score_
     lines = [p1, p2, p3]
     host.legend(lines, [l.get_label() for l in lines])
     plt.title(plottitle, fontsize=10)
+    fig.savefig(path + "/graphs/" + str(inputname) + "graph.pdf", bbox_inches='tight')
     plt.show()
 
 plot()

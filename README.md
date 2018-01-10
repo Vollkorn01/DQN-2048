@@ -1,1 +1,3 @@
-Please open the Jupyter Notebook at deep-q-learning-2048.ipynb for further infos.
+# 2048 using Deep Q Learning
+
+Please open the Jupyter Notebook at 2048_DQN_Notebook.ipynb for a full description of the game, algorithm and set-up descriptions.

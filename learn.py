@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)
-        if e % 10000 == 0:
+        if e % 1000 == 0:
             timenow = time.strftime("%Y-%m-%d_%H-%M-%S")
             savepath = path + "/data/checkpoint"
             agent.save(savepath)

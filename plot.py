@@ -7,7 +7,7 @@ import os
 #####SET PARAMETERS HERE######
 stepsize = 100
 plot_max_instead_of_avg = False
-inputname = "test99"
+inputname = "agent_a"
 debug = False
 #####SET PARAMETERS HERE######
 

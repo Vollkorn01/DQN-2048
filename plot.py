@@ -114,9 +114,12 @@ def plot_data(plottitle, max_x, para_episodes_list, para_value_list, para_score_
     #Episodes
     host.set_xlim(stepsize, max_x)
     #Score
-    host.set_ylim(0, 9000)
+    #host.set_ylim(0, 9000)
+    host.set_ylim(0, 2500)
+    if (plot_max_instead_of_avg): host.set_ylim(0, 9000)
     #MaxValue
-    par1.set_ylim(6, 11)
+    par1.set_ylim(6, 8)
+    if (plot_max_instead_of_avg): par1.set_ylim(6, 11)
     #Epsilon
     par2.set_ylim(0, 1)
 
